@@ -1,0 +1,288 @@
+@use "tailwindcss";
+@import "primeicons/primeicons.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+}
+
+@mixin invalid-border {
+    border-color: red !important;
+}
+
+@mixin invalid {
+    &.ng-invalid.ng-touched:not(:focus-visible):not(:disabled) {
+        @include invalid-border;
+    }
+}
+
+@mixin invalid-primeng {
+    &.ng-invalid.ng-touched:not(:focus-visible):not(:disabled) {
+        input {
+            @include invalid-border;
+        }
+    }
+}
+
+@mixin button-default {
+    @apply text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800;
+    border-radius: 0.25rem !important;
+    cursor: pointer;
+
+    min-height: 45px;
+    width: 100% !important;
+    min-width: 0 !important;
+
+    &:disabled {
+        @apply bg-gray-400;
+        cursor: unset;
+    }
+}
+
+button {
+    @include button-default;
+
+    &[type=reset] {
+        @apply bg-red-500;
+
+        &:hover {
+            @apply bg-white text-red-500 outline outline-red-500;
+        }
+    }
+
+    &.danger {
+        @apply bg-red-500;
+
+        &:hover {
+            @apply bg-white text-red-500 outline outline-red-500;
+        }
+    }
+
+    &.button-icon {
+        @apply rounded;
+        width: 45px !important;
+        height: 45px !important;
+        padding: 0 !important;
+    }
+}
+
+input {
+    @include invalid;
+    &:read-only {
+        @apply bg-gray-100;
+
+        &:focus-visible {
+            @apply text-black border rounded;
+            border-color: var(--p-surface-300) !important;
+        }
+    }
+}
+
+div {
+    .required {
+        &>label {
+           &::after {
+               content: "*";
+               color: red;
+           }
+        }
+    }
+}
+
+input[type=text], select {
+    @apply bg-white text-black border px-2 rounded;
+
+    outline: none !important;
+    height: 45px;
+    width: 100% !important;
+    min-width: 0 !important;
+    border-color: var(--p-surface-300);
+
+    &:focus-visible {
+        @apply bg-white text-black border rounded;
+        border-color: var(--p-form-field-focus-border-color);
+    }
+
+    &:disabled {
+        @apply bg-gray-100;
+    }
+
+    &::placeholder {
+        color: var(--p-inputtext-placeholder-color) !important;
+    }
+}
+
+p-select {
+    width: 150px !important;
+}
+
+.form-col {
+    @apply flex flex-col gap-3;
+    &>div:not(.flex-row) {
+        @apply flex flex-col gap-1;
+    }
+}
+
+body {
+    @apply bg-gray-200;
+}
+
+.label-checkbox {
+    @apply flex flex-row items-center gap-2;
+    font-size: 1.2rem;
+    &>input {
+        height: 20px;
+        width: 20px;
+    }
+}
+
+.p-inputnumber {
+    @include invalid-primeng;
+
+    .p-inputnumber-button {
+        @include button-default;
+
+        border-radius: 0 !important;
+        border: none !important;
+        width: 45px !important;
+
+        &:hover {
+            .p-icon {
+                color: var(--color-blue-700) !important;
+            }
+        }
+
+        &.p-inputnumber-decrement-button {
+            border-bottom-left-radius: var(--spacing) !important;
+            border-top-left-radius: var(--spacing) !important;
+        }
+
+        &.p-inputnumber-increment-button {
+            border-bottom-right-radius: var(--spacing) !important;
+            border-top-right-radius: var(--spacing) !important;
+        }
+
+        .p-icon {
+            min-width: 20px !important;
+            min-height: 20px !important;
+        }
+    }
+}
+
+.p-dialog {
+    width: 50vw;
+    .p-dialog-header {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    .p-dialog-close-button {
+        .p-icon {
+            min-width: 20px !important;
+            min-height: 20px !important;
+        }
+    }
+}
+
+.p-paginator {
+    button {
+        width: 45px !important;
+        .p-icon {
+            min-width: 15px !important;
+            min-height: 15px !important;
+        }
+    }
+}
+
+.header {
+    @apply flex flex-row gap-3 bg-black text-white mb-3 px-3 py-2;
+    &>a {
+        @apply text-white text-xl py-1 px-2 rounded;
+
+        &:hover {
+            background-color: var(--p-form-field-focus-border-color);
+        }
+    }
+}
+
+.p-autocomplete {
+    &:has(.p-autocomplete-dropdown) {
+        border: 1px solid var(--p-surface-300);
+        border-radius: 0.25rem !important;
+
+        &:has(.p-autocomplete-input:focus-visible) {
+            border: 1px solid var(--p-form-field-focus-border-color) !important;
+        }
+
+        .p-autocomplete-input {
+            outline: transparent !important;
+            border: transparent !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+
+            &:hover {
+                border: none !important;
+            }
+        }
+    }
+}
+
+
+p-accordion {
+    p-accordion-panel {
+        border: none !important;
+
+        p-accordion-header {
+            background-color: var(--color-blue-100) !important;
+            padding: 10px 20px !important;
+        }
+
+        p-accordion-content {
+            &[data-p-active=true] {
+                border: 1px solid var(--color-blue-100) !important;
+                border-bottom-left-radius: var(--spacing) !important;
+                border-bottom-right-radius: var(--spacing) !important;
+            }
+
+            .p-accordioncontent-content {
+                padding: 0 !important;
+            }
+        }
+    }
+}
+
+
+.p-autocomplete-dropdown {
+    background-color: var(--color-blue-700) !important;
+    border: none !important;
+    width: 45px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+
+    &:hover {
+        @apply text-blue-700 outline outline-blue-700 z-1;
+        background-color: white !important;
+        .p-icon {
+            color: var(--color-blue-700) !important;
+        }
+    }
+
+    .p-icon {
+        min-width: 15px !important;
+        min-height: 15px !important;
+        color: white;
+    }
+}
+
+span {
+    &.badge {
+        padding: var(--spacing);
+        border-radius: 25%;
+        background-color: var(--color-blue-100) !important;
+    }
+}
+
+p-badge {
+    --p-badge-success-background: var(--color-green-700);
+    --p-badge-warn-background: var(--color-yellow-500);
+}

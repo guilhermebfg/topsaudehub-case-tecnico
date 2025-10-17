@@ -1,0 +1,135 @@
+<p-table [value]="products.items"
+         [first]="paginator.first" [rows]="paginator.rows"
+         [sortField]="paginator.sort_field" [sortOrder]="paginator.sort_order ?? -1"
+         [lazy]="true" (onLazyLoad)="loadProducts($event)"
+         [paginator]="true" [totalRecords]="products.total"
+         [showCurrentPageReport]="true" [alwaysShowPaginator]="true">
+    <ng-template #header>
+        <tr>
+            <th pSortableColumn="id">
+                ID <p-sortIcon field="id" />
+            </th>
+            <th pSortableColumn="name">
+                Nome <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="sku">
+                SKU <p-sortIcon field="sku" />
+            </th>
+            <th pSortableColumn="price">
+                Preço <p-sortIcon field="price" />
+            </th>
+            <th pSortableColumn="stock_qty">
+                Quantidade em estoque <p-sortIcon field="stock_qty" />
+            </th>
+            <th pSortableColumn="is_active">
+                Ativo <p-sortIcon field="is_active" />
+            </th>
+            <th pSortableColumn="created_at">
+                Data de criação <p-sortIcon field="created_at" />
+            </th>
+            <th>
+                Ações
+            </th>
+        </tr>
+        <tr [formGroup]="productsFilter">
+            <th>
+                <input type="text" formControlName="id" placeholder="Igual a">
+            </th>
+            <th>
+                <input type="text" formControlName="name" placeholder="Contem">
+            </th>
+            <th>
+                <input type="text" formControlName="sku" placeholder="Contem">
+            </th>
+            <th>
+                <input type="text" formControlName="price" placeholder="Maior que">
+            </th>
+            <th>
+                <input type="text" formControlName="stock_qty" placeholder="Maior que">
+            </th>
+            <th>
+                <p-select [options]="status" formControlName="is_active" optionValue="id" optionLabel="label" placeholder="Selecione" appendTo="body">
+                </p-select>
+            </th>
+            <th>
+                <p-datePicker [maxDate]="today" dateFormat="dd/mm/yy" formControlName="created_min" appendTo="body" placeholder="A partir de"></p-datePicker>
+            </th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-product>
+        <tr>
+            <td>
+                {{ product.id }}
+            </td>
+            <td>
+                {{ product.name }}
+            </td>
+            <td>
+                {{ product.sku }}
+            </td>
+            <td>
+                {{ product.price | currency }}
+            </td>
+            <td>
+                {{ product.stock_qty }}
+            </td>
+            <td>
+                {{ product.is_active ? "Sim" : "Não" }}
+            </td>
+            <td>
+                {{ product.created_at | date: "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td>
+                <button type="button" (click)="openModalFormProduct(product.id)">
+                    Editar
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #footer>
+        <tr>
+            <td colspan="7">
+
+            </td>
+            <td>
+                <button type="button" (click)="openModalFormProduct()">
+                    Novo produto
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="modalProductFormVisible" [modal]="true" [draggable]="false" [header]="(productId != null ? 'Editar' : 'Adicionar') + ' produto'">
+    <form (submit)="saveProduct()" [formGroup]="productForm" class="form-col">
+        <div class="required">
+            <label for="nome">Nome</label>
+            <input type="text" formControlName="name" placeholder="Nome do produto">
+        </div>
+        <div class="required">
+            <label for="nome">SKU</label>
+            <input type="text" formControlName="sku" placeholder="ABC-123" mask="SSS-999" [dropSpecialCharacters]="false">
+        </div>
+        <div class="required">
+            <label for="nome">Preço</label>
+            <p-inputNumber [useGrouping]="true" prefix="R$ " formControlName="price" mode="decimal" locale="pt-Br" [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="R$ 00,00">
+            </p-inputNumber>
+        </div>
+        <div>
+            <label for="nome">Quantidade em estoque</label>
+            <p-inputNumber formControlName="stock_qty" [min]="0" [showButtons]="true" buttonLayout="horizontal" placeholder="Quantidade em estoque"></p-inputNumber>
+        </div>
+        <div>
+            <label for="nome" class="label-checkbox">
+                <input type="checkbox" formControlName="is_active">
+                Ativo
+            </label>
+        </div>
+        <div>
+            <button type="submit">
+                Salvar
+            </button>
+        </div>
+    </form>
+</p-dialog>

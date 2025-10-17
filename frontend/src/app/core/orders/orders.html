@@ -1,0 +1,183 @@
+<p-table [value]="orders.items" [paginator]="true" [totalRecords]="orders.total" [lazy]="true"
+         [showCurrentPageReport]="true"
+         [sortField]="paginator.sort_field" [sortOrder]="paginator.sort_order ?? -1" [first]="paginator.first"
+         [rows]="paginator.rows" (onLazyLoad)="loadOrders($event)">
+    <ng-template #header>
+        <tr>
+            <th pSortableColumn="id">
+                ID
+                <p-sortIcon field="id"/>
+            </th>
+            <th>
+                Cliente
+            </th>
+            <th pSortableColumn="total_amount">
+                Total
+                <p-sortIcon field="total_amount"/>
+            </th>
+            <th pSortableColumn="status">
+                Status
+                <p-sortIcon field="status"/>
+            </th>
+            <th pSortableColumn="created_at">
+                Data de criação
+                <p-sortIcon field="created_at"/>
+            </th>
+            <th>
+                Ações
+            </th>
+        </tr>
+        <tr [formGroup]="orderFilter">
+            <th>
+                <input type="text" placeholder="Igual a" formControlName="id">
+            </th>
+            <th>
+                <input type="text" placeholder="Contem" formControlName="customer">
+            </th>
+            <th>
+                <p-inputNumber placeholder="Maior que" formControlName="total_amount"></p-inputNumber>
+            </th>
+            <th>
+                <p-select [options]="orderStatus" placeholder="Selecione" formControlName="status">
+                </p-select>
+            </th>
+            <th>
+                <p-datePicker dateFormat="dd/mm/yy" [maxDate]="today" formControlName="created_min" appendTo="body" placeholder="A partir de"></p-datePicker>
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-order>
+        <tr>
+            <td>
+                {{ order.id }}
+            </td>
+            <td>
+                {{ order.customer.name }}
+            </td>
+            <td>
+                {{ order.total_amount | currency }}
+            </td>
+            <td>
+                <p-badge [value]="getOrderStatusLabel(order.status)" size="large" [severity]="getOrderStatusSeverity(order.status)"></p-badge>
+            </td>
+            <td>
+                {{ order.created_at | date: "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td>
+                <button type="button" (click)="openModalFormOrder(order.id)">
+                    Editar
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #footer>
+        <tr>
+            <td colspan="5">
+
+            </td>
+            <td>
+                <button type="button" (click)="openModalFormOrder()">
+                    Novo pedido
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+@if (modalOrderFormVisible) {
+    <p-dialog [(visible)]="modalOrderFormVisible" [modal]="true" [draggable]="false">
+        <ng-template #header>
+            @if (orderId != null) {
+                Pedido {{ orderId }} - Status: {{ getOrderStatusLabel(orderForm.get('status')?.value) }}
+            } @else {
+                Novo pedido
+            }
+        </ng-template>
+        <form (submit)="saveOrder()" [formGroup]="orderForm" class="form-col">
+            <div>
+                <label for="customer">Cliente</label>
+                <p-autoComplete formControlName="customer" [suggestions]="customerSuggestions"
+                                (completeMethod)="customerSearch($event)" optionLabel="name"
+                                [dropdown]="true"></p-autoComplete>
+            </div>
+            <div>
+                <label for="items">Produtos</label>
+                <div class="flex flex-col gap-3">
+
+                    <p-accordion [(value)]="activeAccordion">
+                        @for (item of itemsFormGroups; let i = $index; track $index) {
+
+                            <p-accordion-panel [value]="i + 1">
+                                <p-accordion-header>
+                                    <div class="flex flex-row grow items-center justify-between flex-wrap pe-2">
+                                        <div>
+                                            Item {{i + 1}} - {{ item.get('product')?.value?.name }}
+                                        </div>
+                                        <div>
+                                            <button type="button" class="button-icon danger" (click)="removeItem(i); $event.stopPropagation()"><i class="pi pi-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </p-accordion-header>
+                                <p-accordion-content>
+                                    <div class="flex flex-col gap-3 py-4 px-4" [formGroup]="item">
+                                        <div class="flex flex-col gap-1">
+                                            <label for="product">Produto</label>
+                                            <p-autoComplete formControlName="product" [suggestions]="productSuggestions"
+                                                            (completeMethod)="searchProducts($event)" [dropdown]="true"
+                                                            optionLabel="name"></p-autoComplete>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <label for="quantity">Quantidade</label>
+                                            <p-inputNumber formControlName="quantity" [min]="1" [max]="getItemMaxQuantity(i)" [showButtons]="true" buttonLayout="horizontal"></p-inputNumber>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <label for="unit_price">Preço unitário</label>
+                                            <p-inputNumber [useGrouping]="true" prefix="R$ " formControlName="unit_price" mode="decimal" locale="pt-Br" [minFractionDigits]="2" [maxFractionDigits]="2">
+                                            </p-inputNumber>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <label for="line_total">Valor Total</label>
+                                            <p-inputNumber [useGrouping]="true" prefix="R$ " formControlName="line_total" mode="decimal" locale="pt-Br" [minFractionDigits]="2" [maxFractionDigits]="2" readonly>
+                                            </p-inputNumber>
+                                        </div>
+                                    </div>
+                                </p-accordion-content>
+                            </p-accordion-panel>
+                        }
+                    </p-accordion>
+                    <div>
+                        <button type="button" [disabled]="orderForm.disabled" (click)="addItem()">Adicionar produto</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label for="total_amount">Valor total</label>
+                <p-inputNumber [useGrouping]="true" prefix="R$ " formControlName="total_amount" mode="decimal" locale="pt-Br" [minFractionDigits]="2" [maxFractionDigits]="2" readonly>
+                </p-inputNumber>
+            </div>
+            <div class="flex flex-col gap-2">
+                <div class="flex flex-row gap-2">
+                    <button type="submit" [disabled]="orderForm.disabled">
+                        Salvar
+                    </button>
+                    <button type="reset" (click)="modalOrderFormVisible = false">
+                        {{ order?.status == 'CREATED' ? 'Descartar alterações' : 'Fechar' }}
+                    </button>
+                </div>
+                @if (order?.status == 'CREATED') {
+                    <div class="flex flex-row gap-2">
+                        <button type="button" (click)="chargeOrder()">
+                            Cobrar pedido
+                        </button>
+                        <button type="button" (click)="cancelOrder()">
+                            Cancelar pedido
+                        </button>
+                    </div>
+                }
+            </div>
+        </form>
+    </p-dialog>
+}
