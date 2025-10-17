@@ -9,7 +9,7 @@ load_dotenv()
 
 class Settings(BaseModel):
     # Application
-    app_name: str = os.getenv("APP_NAME", "Interplayers API")
+    app_name: str = os.getenv("APP_NAME", "TopSaudeHub API")
     app_version: str = os.getenv("APP_VERSION", "1.0.0")
     app_env: str = os.getenv("APP_ENV", "dev")
     debug: bool = os.getenv("DEBUG", "true").lower() == "true"
@@ -20,7 +20,7 @@ class Settings(BaseModel):
                   "postgresql+psycopg://"
                   "postgres:postgres@localhost"
                   ":5432"
-                  "/interplayers_db"))
+                  "/topsaudehub_db"))
 
     # CORS
     cors_origins: List[str] = os.getenv("CORS_ORIGINS",

@@ -1,17 +1,17 @@
 services:
   postgres:
     image: postgres:15
-    container_name: pg_interplayers
+    container_name: pg_topsaudehub
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-interplayers_db}
+      POSTGRES_DB: ${POSTGRES_DB:-topsaudehub_db}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-interplayers_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-topsaudehub_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend_api
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/interplayers_db}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/topsaudehub_db}
       PYTHONPATH: /app
       TZ: America/Sao_Paulo
     depends_on:

@@ -23,7 +23,7 @@ from backend.src.infrastructure.models import (
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg://postgres:postgres@localhost:5432/interplayers_db",
+    "postgresql+psycopg://postgres:postgres@localhost:5432/topsaudehub_db",
 )
 
 engine = create_engine(DATABASE_URL, future=True)
