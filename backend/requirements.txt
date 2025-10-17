@@ -1,0 +1,16 @@
+fastapi==0.119.0
+uvicorn==0.37.0
+SQLAlchemy==2.0.44
+psycopg==3.2.10
+psycopg-binary==3.2.10
+alembic==1.17.0
+python-dotenv==1.1.1
+Authlib==1.6.5
+Faker==37.11.0
+email-validator==2.3.0
+python-dateutil==2.9.0.post0
+cryptography==46.0.3
+pytest==8.4.2
+pytest-asyncio==1.2.0
+pytest-cov==7.0.0
+httpx==0.28.1

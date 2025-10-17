@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: pg_interplayers
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-interplayers_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-interplayers_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_api
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/interplayers_db}
+      PYTHONPATH: /app
+      TZ: America/Sao_Paulo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      bash -lc "
+      alembic -c /app/backend/alembic.ini upgrade head &&
+      python /app/backend/seed.py &&
+      uvicorn backend.src.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_app
+    environment:
+      API_URL: http://backend:8000
+      NG_CLI_ANALYTICS: ci
+    depends_on:
+      - backend
+    command: npm run start -- --host 0.0.0.0 --port ${FRONTEND_PORT:-4200}
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  tests:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_tests
+    working_dir: /app/backend
+    environment:
+      PYTHONPATH: /app
+      TZ: America/Sao_Paulo
+      # forca SQLite se algum import precoce ler DATABASE_URL
+      DATABASE_URL: sqlite:////tmp/test.db
+    volumes:
+      - ./backend:/app/backend
+    command: >
+      bash -lc "pytest -vv --maxfail=1"
+    profiles: [ "test" ]
+
+volumes:
+  postgres_data:
